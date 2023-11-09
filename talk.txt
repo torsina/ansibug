@@ -1,0 +1,70 @@
+Hey everyone I'm here to demonstrate something I've been working on which is an interactive debugger for Ansible.
+I've been personally calling this project ansibug and it is designed to work with client that implements the Debug Adapter Protocol from Microsoft.
+Some of the more popular clients that do this are Visual Studio Code, vim, and emacs but today I'm focusing on Visual Studio Code.
+
+Using a custom build of the vscode-ansible extension I can now use ansibug with Ansible playbooks to
+
+* Set breakpoints
+* Step in/out/over tasks as they happen
+* Get and set variables during a play, and
+* Test out any Jinja2 templates
+
+[On main.yml]
+
+Starting off with a very basic example I can place a breakpoint on the first task and press F5 to launch the playbook.
+Once the debugger starts and hits a breakpoint the magic starts to show itself:
+
+* On the top left we can see the module options for the current task
+* There are 3 more variable scopes as well
+  * the task vars being the snapshot of variables that will be used for this host
+  * host vars being all the variables/facts applied to the host that is currently running
+  * the global vars being all the variables for all hosts
+* The watch pane allows us to watch for the value of any expression [watch ping_res here]
+* The call stack shows us the list of hosts and the location of the current breakpoint hit in this case main.yml at line 4
+* In the main screen we can see the current breakpoint that is active has been highlighted to show where we are at
+* At the bottom of the screen we can see the live output of process, and
+* We can switch over to the debug console and run a few commands or evaluate a template
+  * The templating accepts any value that is a valid Jinja2 template, Jinja moustaches should not be used
+  * Try out hostvars[inventory_hostname] | to_nice_yaml
+  * I think this is a great tool to have when trying to debug a template that isn't giving you the results you expect
+  * Just place a breakpoint at the task with the template and copy/paste the problematic template into the debug console to try things out rather than having to restart the process all the time
+  * [swap back to the terminal]
+
+Before continuing on we can also set a variable in the variables menu.
+
+[Set data to inventory_hostname]
+
+At this point we can either continue the playbook until the next breakpoint is hit or choose to step over to the next task.
+
+[Step over]
+
+Now that we've stepped over to the next task we can now see the playbook output at the bottom has run and the ping return value.
+We can also see the editor shows we are currently stopped at the next task, the call stack shows the new location, and the module options have changed.
+We can also look into our task or host vars to see ping_res defined by the previous task or by looking at the watch we registered.
+
+By choosing Step in we can see that the debuggerr will automatically step into the first task of this include [Step in].
+The call stack will show the heirarchy of the stack allowing us to see how it was included from the play.
+
+By choosing Step out we can skip all the remaining tasks in this included file and continue back onto the task after the include [Step out].
+We call stack has been updated to indicate we are no longer in the the include and we can see that the templated module option has been evaluated allowing us to see the final value before the task will run.
+
+By clicking on continue we will continue the playbook execution until the next breakpoint is hit.
+In this case we have no more breakpoints so the process will finish and the debugger ends.
+
+If we were to run a playbook with multiple hosts [change to hosts: all] we will see that each task is run sequentially for the hosts.
+[Press F5]
+The callstack will indicate the host it is running on by the inventory hostname as well as another other host in the play.
+By pressing continue we will see that the breakpoint is hit again as the second host is run [press continue and show callstack].
+
+Once final feature that I would like to show in this demo is a conditional breakpoint.
+Using a conditional breakpoint we can have a breakpoint set only for a certain condition.
+Say we want to only set a breakpoint for a specific host lets set a condition.
+[Set condition inventory_hostname == 'host2']
+When we run the playbook we can see that the breakpoint will skip over host1 and stop at host2 as per our condition.
+[Go to debug console and type in inventory_hostname]
+[Go back to terminal and Press continue]
+
+There are a few more fun features you can use with ansibug like attaching to an ansible-playbook process started remotely, adding/removing module options rather than just setting them, and more.
+This is still an early offering so there are some minor issues around static imports and breakpoint validation logic but it works quite well for the majority of the use cases with Ansible.
+To learn more about ansibug and some of its features I recommend having a lot at some basic docs I've created which I'll link to with this demo.
+The next steps is to work with the dev tools team to look at integrating this with the official vscode-ansible release so more people can play around with it and hopefully improve the experience when developing Ansible playbooks.

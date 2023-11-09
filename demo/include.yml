@@ -1,0 +1,5 @@
+- name: task inside include
+  ping:
+
+- name: another task in the include
+  ping:

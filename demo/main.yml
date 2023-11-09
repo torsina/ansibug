@@ -1,0 +1,17 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+  - name: task 1
+    ping:
+      data: test
+    register: ping_res
+
+  - name: include example
+    include_tasks: include.yml
+
+  - name: task after include
+    ping:
+      data: '{{ ping_res.ping }}'
+
+  - name: final task
+    ping:
