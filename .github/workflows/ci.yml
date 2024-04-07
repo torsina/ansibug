@@ -15,7 +15,7 @@ on:
 jobs:
   sanity:
     name: run sanity checks
-    runs-on: ubuntu-latest
+    runs-on: temp
     steps:
     - uses: actions/checkout@v3
 
@@ -39,7 +39,7 @@ jobs:
     needs:
     - sanity
 
-    runs-on: ubuntu-latest
+    runs-on: temp
     steps:
     - uses: actions/checkout@v3
 
@@ -60,13 +60,12 @@ jobs:
     needs:
       - build
 
-    runs-on: ${{ matrix.os }}
+    runs-on: temp
     strategy:
       fail-fast: false
       matrix:
         os:
         - ubuntu-latest
-        - macos-latest
         ansible-version:
         - "2.14"
         - "2.15"
@@ -89,12 +88,6 @@ jobs:
         - ansible-version: devel
           python-version: "3.9"
         # Limit macOS tests to the bare essentials (2.16 only)
-        - os: macos-latest
-          ansible-version: "2.14"
-        - os: macos-latest
-          ansible-version: "2.15"
-        - os: macos-latest
-          ansible-version: devel
 
     steps:
       - uses: actions/checkout@v3
@@ -158,7 +151,7 @@ jobs:
     name: publish
     needs:
     - test
-    runs-on: ubuntu-latest
+    runs-on: temp
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
