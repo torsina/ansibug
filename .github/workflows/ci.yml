@@ -70,7 +70,6 @@ jobs:
         - "2.14"
         - "2.15"
         - "2.16"
-        - devel
         python-version:
         - "3.9"
         - "3.10"
@@ -84,8 +83,6 @@ jobs:
         - ansible-version: "2.15"
           python-version: "3.12"
         - ansible-version: "2.16"
-          python-version: "3.9"
-        - ansible-version: devel
           python-version: "3.9"
         # Limit macOS tests to the bare essentials (2.16 only)
 
